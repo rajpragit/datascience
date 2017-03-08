@@ -1,0 +1,22 @@
+Rajesh Prasad
+Mentor Name: Jeff 
+March 7, 2017
+
+Movie Trend
+Idea 01
+This idea intends to show the movie industry trend based on PG Categories, Genre, and Revenue. This will help production houses to focused based  on the public responses based on various categories thats been released in last 40+ years based on data availability.
+
+Possible DataSource: Kaggle, IMDB
+
+
+Startup Failure
+Idea 02
+This idea is to investigate the pattern of startup failure based venture capitalist, stage of funding, peer competition, stealth mode period.
+Possible DataSource: CrunchBase.
+
+
+Marketing Trend
+This idea will solve the probability of a customer to signup for specific service based on direct marketing campaign dataset.
+Example: Based on dataset about customer various parameters(Age, Account Type, Gender, Bank Balance, Status) what is probability for a customer to signup for new service.
+Possible DataSet: University of Irvine 
+
