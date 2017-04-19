@@ -1,12 +1,11 @@
 library(readxl)
-library(dplyr)
 library(xlsx)
+library(dplyr)
 
-#refine <- read_excel("C:/DataScience/Code/refine.csv")
-# str(refine)
+refine <- read_excel("C:/DataScience/Code/refine.xls")
+#refine <- read.csv("C:/DataScience/Code/refine.csv")
 
-df <- read.csv("C:/DataScience/Code/refine.csv")
-#str(df)
+View(refine)
 
 fix_company_name <- function (para_df)
 {
@@ -17,33 +16,75 @@ fix_company_name <- function (para_df)
   para_df$company <- tolower(sub("^ak.*", "akzo", para_df$company, ignore.case = TRUE))
   para_df$company <- tolower(sub("^uni.*", "unilever", para_df$company, ignore.case = TRUE))
   para_df$company <- tolower(sub("^van.*", "van houten", para_df$company, ignore.case = TRUE))
-  
   return(para_df)
 }
 
-fixed_company_df <- fix_company_name(df)
-View(df)
-View(fixed_company_df)
+new_refine <- tbl_df(refine)
+
+#View(new_refine) 
 
 
-parse_product_code <- function (para_df)
-{ 
-  #para_df <- mutate(para_df, product_code="test", product_number="test1")
-  #words <- strsplit("wer-304", "-")[[1]]
-  #words <- strsplit(para_df$`Product code \ number`, "-")[[1]]
-  #words
-  #words[1]
-  #words[2]
-  View(para_df)
+#new_refine$company <- toupper(new_refine$company)
+
+fixed_name_ds <- fix_company_name(new_refine)
+#View(fixed_name_ds)
+
+fix_product_number <- function(para_df) {
+  #df <- mutate(df, ProductCode = substr(df$`Product code / number`,1,1))
+  #df <- mutate(df, ProductNumber = substr(df$`Product code / number`, 3, 5))
+  #View(para_df)
   para_df <- mutate(para_df, ProductCode = substr(para_df$`Product code / number`,1,1)) 
   para_df <- mutate(para_df, ProductNumber = substr(para_df$`Product code / number`, 3, 5)) 
-  
   return(para_df)
 }
 
-updated_dataset <- parse_product_code(fixed_company_df)
-View(updated_dataset)
+fixed_number_ds <- fix_product_number(fixed_name_ds)
 
+fix_product_category <- function(code) {
+  if (code == "p") {
+    return ("Smartphone")
+  }
+  if (code == "v") {
+    return ("TV")
+  }
+  if (code == "x") {
+    return ("Laptop")
+  }
+  if (code == "q") {
+    return("Tablet")
+  }
+  return ("N/A")
+}
 
+fixed_number_ds$ProductCode = sapply(fixed_number_ds$ProductCode, fix_product_category)
 
+fix_full_address <- function(addr, city, country) {
+  return (paste(addr, city, country, sep=","))
+}
+
+add_product_column <- function(df) {
+  df <- mutate(df, product_smartphone=(df$ProductCode=="Smartphone"))
+  df <- mutate(df, product_laptop=(df$ProductCode=="Laptop"))
+  df <- mutate(df, product_tv=(df$ProductCode=="TV"))
+  df <- mutate(df, product_tablet=(df$ProductCode=="Tablet")) 
+  return (df)
+}
+
+new_refine <- mutate(fixed_number_ds, full_address=mapply(fix_full_address, fixed_number_ds$address, fixed_number_ds$city, fixed_number_ds$country))
+
+new_refine <- add_product_column(new_refine)
+
+add_company_column <- function(df) {
+  df <- mutate(df, company_philips=(df$company=="philips"))
+  df <- mutate(df, company_akzo=(df$company=="van houten"))
+  df <- mutate(df, company_vanhouten=(df$company=="unilever"))
+  df <- mutate(df, company_unilever=(df$company=="akzo")) 
+  return (df)
+}
+
+new_refine <- add_company_column(new_refine)
+
+View(new_refine)
+
+write.csv(new_refine, file="C:/DataScience/Code/refine_original.csv", row.names = FALSE)
 
