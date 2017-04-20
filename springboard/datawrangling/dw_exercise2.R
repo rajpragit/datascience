@@ -1,49 +1,39 @@
-library(readxl)
 library(dplyr)
+library(readxl)
 library(xlsx)
 
-#refine <- read_excel("C:/DataScience/Code/refine.csv")
-# str(refine)
-
-df <- read.csv("C:/DataScience/Code/refine.csv")
-#str(df)
-
-fix_company_name <- function (para_df)
-{
-  #para_df$company <- paste(para_df$company , " TEST")  ---- Test
-  #args(sub) 
-  #function (pattern, replacement, x, ignore.case = FALSE, perl = FALSE, fixed = FALSE, useBytes = FALSE) 
-  para_df$company <- tolower(sub(".*ps$", "philips", para_df$company, ignore.case = TRUE))
-  para_df$company <- tolower(sub("^ak.*", "akzo", para_df$company, ignore.case = TRUE))
-  para_df$company <- tolower(sub("^uni.*", "unilever", para_df$company, ignore.case = TRUE))
-  para_df$company <- tolower(sub("^van.*", "van houten", para_df$company, ignore.case = TRUE))
-  
-  return(para_df)
+#titanic <-read_excel("C:/DataScience/Code/titanic3.xls")
+titanic <-read_excel("C:/DataScience/Code/titanic.xls")
+tdf<-tbl_df(titanic)
+View(titanic)
+fix_embark_column <- function(tdf) {
+  tdf$embarked[is.na(tdf$embarked)] <- 'S'
+  return(tdf)
 }
 
-fixed_company_df <- fix_company_name(df)
-View(df)
-View(fixed_company_df)
+tdf<-fix_embark_column(tdf)
 
-
-parse_product_code <- function (para_df)
-{ 
-  #para_df <- mutate(para_df, product_code="test", product_number="test1")
-  #words <- strsplit("wer-304", "-")[[1]]
-  #words <- strsplit(para_df$`Product code \ number`, "-")[[1]]
-  #words
-  #words[1]
-  #words[2]
-  View(para_df)
-  para_df <- mutate(para_df, ProductCode = substr(para_df$`Product code / number`,1,1)) 
-  para_df <- mutate(para_df, ProductNumber = substr(para_df$`Product code / number`, 3, 5)) 
-  
-  return(para_df)
+fix_age_boat_column <- function(tdf, age) {
+  tdf$age[is.na(tdf$age)] <- age
+  tdf$boat[is.na(tdf$boat)] <- "None"
+  return(tdf)
 }
 
-updated_dataset <- parse_product_code(fixed_company_df)
-View(updated_dataset)
+mean_age <- mean(tdf$age, na.rm=T)
 
+tdf<-fix_age_boat_column(tdf, mean_age)
 
+fix_missing_cabin <- function(cabin) {
+  if (is.na(cabin)) {
+    return(0)
+  } else {
+    return(1)
+  }
+}
 
+tdf<-mutate(tdf, has_cabin_number=mapply(fix_missing_cabin, tdf$cabin))
 
+View(tdf)
+write.csv(tdf, file="C:/DataScience/Code/titanic_clean.csv", row.names = FALSE)
+
+rm(tdf)
