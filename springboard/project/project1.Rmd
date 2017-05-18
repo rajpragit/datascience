@@ -18,7 +18,7 @@ library(ggplot2)
 
 ```{r echo=FALSE}
 #rm(bankdata)
-bankdata <- read_excel("C:/DataScience/code/bank-full.xls")
+bankdata <- read_excel("C:/DataScience/code/bank-mktg-cmpg-data.xls")
 summary(bankdata)
 ```
 
