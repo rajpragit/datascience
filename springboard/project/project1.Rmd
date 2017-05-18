@@ -123,6 +123,9 @@ get_age_group <- function(age)
 bankdata <- mutate(bankdata, bal_group=mapply(get_bal_category , bankdata$balance))
 bankdata <- mutate(bankdata, age_group=mapply(get_age_group, bankdata$age))
 bankdata <- mutate(bankdata, signup=mapply(get_indicator , bankdata$y))
+bankdata <- mutate(bankdata, housing_loan=mapply(get_indicator , bankdata$housing))
+bankdata <- mutate(bankdata, personal_loan=mapply(get_indicator , bankdata$loan))
+
 #View(bankdata)
 str(bankdata)
 
