@@ -11,6 +11,10 @@ library(readxl)
 library(dplyr)
 library(ggplot2)
 library(ggmap)
+library(caTools)
+library(ROCR)
+library(corrplot)
+
 
 #rm(bankdata)
 bankdata <- read_excel("C:/DataScience/code/bank.xls")
@@ -152,20 +156,51 @@ Various data wrangling activities has been done on the dataset to make it more s
 
 Data has been collected and categorized based on the marital status of the individual. These are divided into 3 categories (single, married and divorced). Following is the Signup distribution comparison on Marital Status
 
-```{r bankdata_1, echo=FALSE}
+```{r bankdata_1, echo=TRUE}
 #Distribution comparison based on Marital Status
 
 ggplot(bankdata, aes(x =factor(y), fill = marital)) +
   geom_bar(position = "dodge") +
-labs(title = "Signup Distribution based on Marital status") +
-  scale_x_discrete(name ="Signup Yes/No")
-  
+  geom_text(stat='count',aes(label=..count..),vjust=-0.5, position = position_dodge(width=0.9)) + 
+  labs(title = "Signup Distribution based on Marital status", x= "Signup Yes/No" , y= "Count", fill = "Marital") +
+ theme_bw()
+  #scale_x_discrete(name ="Signup Yes/No")
 #---------------------------------------------------------------------------------------
 ```
 
+Signup comparison based on Marital status
+
+```{r bankdata_1a, echo=TRUE}
+#Distribution comparison based on Marital Status
+
+ggplot(bankdata, aes(x =factor(marital), fill = y)) +
+  geom_bar(position = "dodge") +
+  geom_text(stat='count',aes(label=..count..),vjust=-0.5, position = position_dodge(width=0.9)) + 
+  labs(title = "Signup comparison based on Marital status", x= "Marital Status" , y= "Count", fill = "Signed Up") 
+
+#---------------------------------------------------------------------------------------
+```
+Corr plots
+
+```{r bankdata_1b, echo=TRUE}
+#Corr plots
+
+corrdata <-  subset(bankdata, select=c(age, balance, duration, campaign, housing_loan, personal_loan))
+#View(corrdata)
+
+M1 <- cor(corrdata)
+corrplot(M1, method="circle", order ="hclust")
+
+M2 <- cor(corrdata)
+corrplot(M2, method="number")
+
+#---------------------------------------------------------------------------------------
+```
+
+
 Below is the distribution who have signed up for Term Deposit based on matital status 
 
-```{r bankdata_2, echo=FALSE}
+```{r bankdata_2, echo=TRUE}
 #Sign up based on Marital Status
 
 signup_only <- bankdata[bankdata$signup == 1, ]
@@ -199,7 +234,7 @@ ggplot(df1, aes(x = 1, weight = no_rows, fill = marital)) +
 Below is the distribution who have signed up for Term Deposit based on Job category 
 
 
-```{r bankdata_3, echo=FALSE}
+```{r bankdata_3, echo=TRUE}
 
 job_dist <- signup_only %>% group_by(job) %>%
   summarise(no_rows = length(job))
@@ -232,7 +267,7 @@ ggplot(df2, aes(x = 1, weight = no_rows, fill = job)) +
 Below is the distribution who have signed up for Term Deposit based on education 
 
 
-```{r bankdata_4, echo=FALSE}
+```{r bankdata_4, echo=TRUE}
 edu_dist <- signup_only %>% group_by(education) %>%
   summarise(no_rows = length(education))
 #View(edu_dist)
@@ -262,7 +297,7 @@ ggplot(df3, aes(x = 1, weight = no_rows, fill = education)) +
 ```
 There is hardly any instances that signup is influenced by a factor where balance is more than 30000. Below is the plot showing signup based on call balance and call duration for the balances less than 30000
 
-```{r bankdata_5, echo=FALSE}
+```{r bankdata_5, echo=TRUE}
 balance_30000 <- bankdata[bankdata$balance < 30000, ]
 ggplot(balance_30000, aes(y=balance, x=duration_minutes,col=factor(signup))) +
   geom_point() +
